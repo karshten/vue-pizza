@@ -2,7 +2,7 @@
     <ul>
         <li
                 @click="handleChangeSize(i)"
-                :class="{active: sizeItems[i] === activeSize,
+                :class="{active: availableSizes[i] === activeSize,
                 disabled: !availableSizes.includes(sizeItems[i])}"
                 v-for="(item, i) in sizeItems"
                 :key="item"
