@@ -14,7 +14,7 @@
                         </svg>
                         Корзина
                     </h2>
-                    <div class="cart__clear">
+                    <div @click="handleClearCartItems" class="cart__clear">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M2.5 5H4.16667H17.5" stroke="#B6B6B6" stroke-width="1.2" stroke-linecap="round"
                                   stroke-linejoin="round"/>
@@ -140,11 +140,25 @@
                 }
             }
 
+            const handleClearCartItems = () => {
+                pizzas.value.forEach(item => {
+                    store.dispatch('deletePizzaFromCartItemsAction', item.id)
+                })
+                store.commit('CLEAR_CART_ITEMS')
+            }
+
             onMounted(() => {
                 store.dispatch('getCartAction')
             })
 
-            return {pizzas, totalPrice, totalCount, handleIncreasePizzaCount, handleDecreasePizzaCount}
+            return {
+                pizzas,
+                totalPrice,
+                totalCount,
+                handleIncreasePizzaCount,
+                handleDecreasePizzaCount,
+                handleClearCartItems
+            }
         }
     }
 </script>

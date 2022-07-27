@@ -63,6 +63,10 @@ export default createStore({ //store
             } else state.cartItems.forEach((value, key, map) => {
                 value.count = value.count - 1
             })
+        },
+        CLEAR_CART_ITEMS(state) {
+            state.cartPizzas = []
+            state.cartItems.clear()
         }
     },
     actions: {
