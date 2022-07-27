@@ -3,7 +3,7 @@ import {createStore} from 'vuex'
 export default createStore({ //store
     state: {
         pizzas: [],
-        cartPizzas:[],
+        cartPizzas: [],
         category: null,
         sortByActive: {
             name: 'популярности',
@@ -53,12 +53,21 @@ export default createStore({ //store
 
             if (isAlreadyExists) {
                 state.cartItems.set(pizza.id, {...pizza, count: isAlreadyExists.count + 1})
-            } else if (!isAlreadyExists) {
+            } else {
                 state.cartItems.set(pizza.id, {...pizza, count: 1})
             }
+        },
+        REMOVE_PIZZA_FROM_CART(state, pizza) {
+            if (pizza.count < 1) {
+                state.cartItems.delete(pizza.id)
+            } else state.cartItems.forEach((value, key, map) => {
+                value.count = value.count - 1
+            })
         }
     },
-    actions: { //actions for async code like requests. you CAN NOT change/mutate state in actions
+    actions: {
+        //actions for async code like requests. you CAN NOT change/mutate state in actions
+        // first action argument always takes the context
         async getPizzaAction({commit, state}) { //context is this file
             const response = await fetch('http://localhost:3000/pizzas')
             const pizzasData = await response.json()
@@ -90,8 +99,13 @@ export default createStore({ //store
                 method: 'PATCH',
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    count: context.state.cartItems.get(pizzaId).count
+                    count: context.state.cartItems.get(pizzaId)?.count
                 })
+            })
+        },
+        async deletePizzaFromCartItemsAction(context, pizzaId) {
+            await fetch(`http://localhost:3000/cart/${pizzaId}`, {
+                method: 'DELETE'
             })
         }
     },
