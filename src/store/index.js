@@ -64,9 +64,9 @@ export default createStore({ //store
                 value.count = value.count - 1
             })
         },
-        CLEAR_CART_ITEMS(state) {
-            state.cartPizzas = []
-            state.cartItems.clear()
+        CLEAR_CART_ITEMS(state, pizzaId) {
+            state.cartItems.delete(pizzaId)
+            state.cartPizzas = state.cartPizzas.filter(pizza => pizza.id !== pizzaId)
         }
     },
     actions: {

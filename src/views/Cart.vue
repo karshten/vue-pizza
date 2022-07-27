@@ -143,8 +143,8 @@
             const handleClearCartItems = () => {
                 pizzas.value.forEach(item => {
                     store.dispatch('deletePizzaFromCartItemsAction', item.id)
+                    store.commit('CLEAR_CART_ITEMS', item.id)
                 })
-                store.commit('CLEAR_CART_ITEMS')
             }
 
             onMounted(() => {
