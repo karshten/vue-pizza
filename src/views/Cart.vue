@@ -14,7 +14,7 @@
                         </svg>
                         Корзина
                     </h2>
-                    <div @click="handleClearCartItems" class="cart__clear">
+                    <button @click="handleClearCartItems" class="cart__clear">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M2.5 5H4.16667H17.5" stroke="#B6B6B6" stroke-width="1.2" stroke-linecap="round"
                                   stroke-linejoin="round"/>
@@ -29,7 +29,7 @@
                         </svg>
 
                         <span>Очистить корзину</span>
-                    </div>
+                    </button>
                 </div>
                 <div class="content__items">
                     <div v-for="pizza in pizzas" class="cart__item">
@@ -135,7 +135,6 @@
                 if (pizza.count >= 1) {
                     store.dispatch('setCountCartItemAction', pizzaId)
                 } else {
-                    console.log(pizzaId)
                     store.dispatch('deletePizzaFromCartItemsAction', pizzaId)
                 }
             }
@@ -157,7 +156,7 @@
                 totalCount,
                 handleIncreasePizzaCount,
                 handleDecreasePizzaCount,
-                handleClearCartItems
+                handleClearCartItems,
             }
         }
     }

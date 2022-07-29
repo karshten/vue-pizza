@@ -60,9 +60,7 @@ export default createStore({ //store
         REMOVE_PIZZA_FROM_CART(state, pizza) {
             if (pizza.count < 1) {
                 state.cartItems.delete(pizza.id)
-            } else state.cartItems.forEach((value, key, map) => {
-                value.count = value.count - 1
-            })
+            } else state.cartItems.get(pizza.id).count = state.cartItems.get(pizza.id).count - 1
         },
         CLEAR_CART_ITEMS(state, pizzaId) {
             state.cartItems.delete(pizzaId)
@@ -107,10 +105,11 @@ export default createStore({ //store
                 })
             })
         },
-        async deletePizzaFromCartItemsAction(context, pizzaId) {
+        async deletePizzaFromCartItemsAction({commit}, pizzaId) {
             await fetch(`http://localhost:3000/cart/${pizzaId}`, {
                 method: 'DELETE'
             })
+            commit('CLEAR_CART_ITEMS', pizzaId)
         }
     },
     modules: {}
