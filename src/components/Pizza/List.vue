@@ -12,6 +12,7 @@
 
     export default {
         components: {Item},
+        props: ['pizzas'],
         setup() {
             const store = useStore()
 
@@ -19,7 +20,6 @@
 
             onMounted(() => {
                 store.dispatch('getPizzaAction')
-                store.dispatch('getCartAction')
             })
 
             return {pizzas}

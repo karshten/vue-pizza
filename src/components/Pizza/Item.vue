@@ -36,7 +36,7 @@
     import Types from "./Types.vue";
     import Sizes from "./Sizes.vue";
     import {useStore} from 'vuex'
-    import {computed, ref} from '@vue/runtime-core'
+    import {computed, ref, onMounted} from '@vue/runtime-core'
 
     export default {
         props: ['pizza'],
@@ -44,49 +44,31 @@
         setup(props) {
             const store = useStore()
             const {pizza} = props;
+            const types = ['тонкое', 'традиционное']
             const activeType = ref(null)
             const activeSize = ref(null)
 
+            const id = ref(`${pizza.name}${types[pizza.types[0]]}${pizza.sizes[0]}`)
+
             const handleType = (type) => {
                 activeType.value = type
+                id.value = `${pizza.name}${type}${pizza.size || activeSize.value}`
             }
             const handleSize = (size) => {
                 activeSize.value = size
+                id.value = `${pizza.name}${pizza.type || activeType.value}${size}`
             }
 
-            const pizzaCount = computed(() => store.state.cartItems.get(`${pizza.id} ${activeSize.value} ${activeType.value}`)?.count)
-
-            const cartItems = computed(() => store.state.cartItems)
+            const pizzaCount = computed(() => store.state.cartItems.get(id.value)?.count)
 
             const handleAddPizza = (pizza) => {
-                const pizzaId = `${pizza.id} ${activeSize.value} ${activeType.value}`
-
-                if (cartItems.value.get(pizzaId)) {
-                    store.commit(
-                        'ADD_PIZZA_TO_CART',
-                        {
-                            ...pizza,
-                            type: activeType.value,
-                            size: activeSize.value,
-                            id: pizzaId
-                        }
-                    )
-                    store.dispatch('setCountCartItemAction', pizzaId)
-                } else {
-                    store.commit(
-                        'ADD_PIZZA_TO_CART',
-                        {
-                            ...pizza,
-                            type: activeType.value,
-                            size: activeSize.value,
-                            id: pizzaId
-                        }
-                    )
-                    store.dispatch('setCartItemAction', pizzaId)
-                }
+                pizza.type = activeType.value
+                pizza.size = activeSize.value
+                id.value = `${pizza.name}${pizza.type}${pizza.size}`
+                store.commit('ADD_PIZZA_TO_CART', pizza)
             }
 
-            return {handleAddPizza, pizzaCount, handleType, handleSize}
+            return {handleAddPizza, pizzaCount, handleType, handleSize, id}
         }
     }
 </script>

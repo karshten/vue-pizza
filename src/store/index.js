@@ -1,17 +1,17 @@
 import {createStore} from 'vuex'
+import {getCollection} from "../composables/getCollection";
 
 export default createStore({ //store
     state: {
         pizzas: [],
-        cartPizzas: [],
         category: null,
         sortByActive: {
             name: 'популярности',
             id: 0,
             sortBy: 'rating'
         },
-        cartItems: new Map([]) // something like {}
-
+        cartItems: new Map([]), // something like {},
+        createdPreviewPizza: null
     },
     getters: { // something like computed
         getTotalCount(state) {
@@ -30,87 +30,89 @@ export default createStore({ //store
     },
     mutations: { // mutations for sync code. mutate/change state only in mutations
         GET_PIZZAS(state, actionPizza) {
-            state.pizzas = actionPizza
+            state.pizzas = actionPizza.value
         },
         GET_PIZZAS_CART(state, actionPizza) {
-            state.cartPizzas = actionPizza
-            actionPizza.forEach(cart => state.cartItems.set(cart.id, {...cart}))
+            actionPizza.value.forEach(cart => state.cartItems.set(cart.id, {...cart}))
         },
         SET_CATEGORY(state, categoryIndex) {
             state.category = categoryIndex
         },
         SET_SORT(state, sortItem) {
-            const sortBy = sortItem.sortBy
-            if (typeof state.pizzas[0][sortBy] === 'string') {
-                state.pizzas.sort((a, b) => {
-                    return a[sortBy].toLowerCase().localeCompare(b[sortBy].toLowerCase())
-                })
-            } else state.pizzas.sort((a, b) => b[sortBy] - a[sortBy])
-            state.sortByActive = {name: sortItem.name, id: sortItem.id, sortBy: sortBy}
+            // const sortBy = sortItem.sortBy
+            // if (typeof state.pizzas[0][sortBy] === 'string') {
+            //     state.pizzas.sort((a, b) => {
+            //         return a[sortBy].toLowerCase().localeCompare(b[sortBy].toLowerCase())
+            //     })
+            // } else state.pizzas.sort((a, b) => b[sortBy] - a[sortBy])
+            // state.sortByActive = {name: sortItem.name, id: sortItem.id, sortBy: sortBy}
         },
         ADD_PIZZA_TO_CART(state, pizza) {
-            const isAlreadyExists = state.cartItems.get(pizza.id)
+            const id = `${pizza.name}${pizza.type}${pizza.size}`
+            const isAlreadyExists = state.cartItems.get(id)
 
             if (isAlreadyExists) {
-                state.cartItems.set(pizza.id, {...pizza, count: isAlreadyExists.count + 1})
+                state.cartItems.set(id, {...pizza, count: isAlreadyExists.count + 1})
             } else {
-                state.cartItems.set(pizza.id, {...pizza, count: 1})
+                state.cartItems.set(id, {...pizza, count: 1})
             }
         },
         REMOVE_PIZZA_FROM_CART(state, pizza) {
+            const id = `${pizza.name}${pizza.type}${pizza.size}`
             if (pizza.count < 1) {
-                state.cartItems.delete(pizza.id)
-            } else state.cartItems.get(pizza.id).count = state.cartItems.get(pizza.id).count - 1
+                state.cartItems.delete(id)
+            } else state.cartItems.set(id, {...pizza, count: pizza.count - 1})
         },
-        CLEAR_CART_ITEMS(state, pizzaId) {
-            state.cartItems.delete(pizzaId)
-            state.cartPizzas = state.cartPizzas.filter(pizza => pizza.id !== pizzaId)
+        INCREMENT_PIZZA_COUNT(state, pizza) {
+            const id = `${pizza.name}${pizza.type}${pizza.size}`
+            const count = pizza.count
+
+            delete pizza.count
+
+            state.cartItems.set(id, {...pizza, count: count + 1})
+        },
+        DECREMENT_PIZZA_COUNT(state, pizza) {
+            const id = `${pizza.name}${pizza.type}${pizza.size}`
+            const count = pizza.count
+
+            if (pizza.count === 1) {
+                state.cartItems.delete(id)
+            }
+
+            delete pizza.count
+
+            state.cartItems.set(id, {...pizza, count: count - 1})
+        },
+        CLEAR_CART_ITEMS(state) {
+            state.cartItems.clear()
+        },
+        DELETE_PIZZA_FROM_CART(state, pizza) {
+            const id = `${pizza.name}${pizza.type}${pizza.size}`
+            delete pizza.count
+            state.cartItems.delete(id)
+        },
+        CREATE_PIZZA(state, pizza) {
+            state.createdPreviewPizza = pizza
+        },
+        SET_SAVED_PIZZAS(state, savedPizzas){
+            state.cartItems = savedPizzas
         }
     },
     actions: {
         //actions for async code like requests. you CAN NOT change/mutate state in actions
         // first action argument always takes the context
-        async getPizzaAction({commit, state}) { //context is this file
-            const response = await fetch('http://localhost:3000/pizzas')
-            const pizzasData = await response.json()
-            commit('GET_PIZZAS', pizzasData)
-            commit('SET_SORT', state.sortByActive)
+        //context is this file
+        async getPizzaAction({commit, state}) {
+            const {documents} = await getCollection('pizzas')
+            commit('GET_PIZZAS', documents)
         },
         async getFilteredPizzasAction(context, category) {
-            const response = await fetch(`http://localhost:3000/pizzas?category=${category}`)
-            const pizzasData = await response.json()
-            context.commit('SET_CATEGORY', category)
-            context.commit('GET_PIZZAS', pizzasData)
-            context.commit('SET_SORT', context.state.sortByActive)
+            // const response = await fetch(`http://localhost:3000/pizzas?category=${category}`)
+            // const pizzasData = await response.json()
+            // context.commit('SET_CATEGORY', category)
+            // context.commit('GET_PIZZAS', pizzasData)
+            // context.commit('SET_SORT', context.state.sortByActive)
         },
-        async getCartAction({commit}) {
-            const response = await fetch('http://localhost:3000/cart')
-            const pizzasData = await response.json()
-            commit('GET_PIZZAS_CART', pizzasData)
-        }
-        ,
-        async setCartItemAction(context, pizzaId) {
-            await fetch('http://localhost:3000/cart', {
-                method: 'POST',
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(context.state.cartItems.get(pizzaId))
-            })
-        },
-        async setCountCartItemAction(context, pizzaId) {
-            await fetch(`http://localhost:3000/cart/${pizzaId}`, {
-                method: 'PATCH',
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    count: context.state.cartItems.get(pizzaId)?.count
-                })
-            })
-        },
-        async deletePizzaFromCartItemsAction({commit}, pizzaId) {
-            await fetch(`http://localhost:3000/cart/${pizzaId}`, {
-                method: 'DELETE'
-            })
-            commit('CLEAR_CART_ITEMS', pizzaId)
-        }
     },
     modules: {}
 })
