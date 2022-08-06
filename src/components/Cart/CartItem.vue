@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="cart__item-price">
-                <b>{{pizza.price * pizza.count}} ₽</b>
+                <b>{{pizza.activePrice * pizza.count}} ₽</b>
             </div>
             <div @click="handleDeletePizza()" class="cart__item-remove">
                 <div class="button button--outline button--circle">

@@ -14,7 +14,7 @@
                 />
             </svg>
             <b>Сортировка по:</b>
-            <span>{{sortItems[activeSortItem.id].name}}</span>
+            <span>{{sortItems[activeSortItem.id].name}}</span>k
         </div>
         <div v-if="showPopup" class="sort__popup">
             <ul>

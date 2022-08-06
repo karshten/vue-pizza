@@ -22,7 +22,7 @@ export default createStore({ //store
         getTotalPrice(state) {
             let totalPrice = 0
             state.cartItems.forEach((pizza) => {
-                const pizzaPrice = pizza.price * pizza.count
+                const pizzaPrice = pizza.activePrice * pizza.count
                 totalPrice += pizzaPrice
             })
             return totalPrice
@@ -109,9 +109,9 @@ export default createStore({ //store
         async getFilteredPizzasAction(context, category) {
             // const response = await fetch(`http://localhost:3000/pizzas?category=${category}`)
             // const pizzasData = await response.json()
-            // context.commit('SET_CATEGORY', category)
+            context.commit('SET_CATEGORY', category)
             // context.commit('GET_PIZZAS', pizzasData)
-            // context.commit('SET_SORT', context.state.sortByActive)
+            context.commit('SET_SORT', context.state.sortByActive)
         },
     },
     modules: {}

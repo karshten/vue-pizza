@@ -23,12 +23,12 @@
             const activeSize = ref(props.availableSizes[0])
 
             onMounted(() => {
-                context.emit('activeSize', activeSize.value)
+                context.emit('activeSize', activeSize.value, sizeItems.indexOf(activeSize.value))
             })
 
             const handleChangeSize = (idx) => {
                 activeSize.value = props.availableSizes[idx]
-                context.emit('activeSize', activeSize.value)
+                context.emit('activeSize', activeSize.value, sizeItems.indexOf(activeSize.value))
             }
 
             return {sizeItems, activeSize, handleChangeSize}

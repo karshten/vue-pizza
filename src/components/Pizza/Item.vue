@@ -11,7 +11,7 @@
             <Sizes @activeSize="handleSize" :availableSizes="pizza.sizes"/>
         </div>
         <div class="pizza-block__bottom">
-            <div class="pizza-block__price">от {{pizza.price}} ₽</div>
+            <div class="pizza-block__price">от {{pizza.price[activeSizeIdx]}} ₽</div>
             <div class="button button--outline button--add" @click="handleAddPizza(pizza)">
                 <svg
                         width="12"
@@ -47,6 +47,7 @@
             const types = ['тонкое', 'традиционное']
             const activeType = ref(null)
             const activeSize = ref(null)
+            const activeSizeIdx = ref(0)
 
             const id = ref(`${pizza.name}${types[pizza.types[0]]}${pizza.sizes[0]}`)
 
@@ -54,8 +55,9 @@
                 activeType.value = type
                 id.value = `${pizza.name}${type}${pizza.size || activeSize.value}`
             }
-            const handleSize = (size) => {
+            const handleSize = (size, sizeIdx) => {
                 activeSize.value = size
+                activeSizeIdx.value = sizeIdx
                 id.value = `${pizza.name}${pizza.type || activeType.value}${size}`
             }
 
@@ -64,11 +66,12 @@
             const handleAddPizza = (pizza) => {
                 pizza.type = activeType.value
                 pizza.size = activeSize.value
+                pizza.activePrice = pizza.price[activeSizeIdx.value]
                 id.value = `${pizza.name}${pizza.type}${pizza.size}`
                 store.commit('ADD_PIZZA_TO_CART', pizza)
             }
 
-            return {handleAddPizza, pizzaCount, handleType, handleSize, id}
+            return {handleAddPizza, pizzaCount, handleType, handleSize, id, activeSizeIdx}
         }
     }
 </script>
