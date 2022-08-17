@@ -1,6 +1,6 @@
 <template>
     <h2 class="content__title">Все пиццы</h2>
-    <div class="content__items">
+    <div class="content__items ">
         <Item v-for="pizza in pizzas" :key="pizza.id" :pizza="pizza"/>
     </div>
 </template>

@@ -28,7 +28,7 @@
 
             const handleChangeSize = (idx) => {
                 activeSize.value = props.availableSizes[idx]
-                context.emit('activeSize', activeSize.value, sizeItems.indexOf(activeSize.value))
+                context.emit('activeSize', activeSize.value, idx)
             }
 
             return {sizeItems, activeSize, handleChangeSize}

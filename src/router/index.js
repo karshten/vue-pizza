@@ -30,7 +30,7 @@ const router = createRouter({
     },
     {
       path: "/create-pizza",
-      name: "CretePizza",
+      name: "CreatePizza",
       component: RatingCategory
     },
   ]

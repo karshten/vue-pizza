@@ -1,12 +1,12 @@
 <template>
-    <div class="wrapper">
-        <Header/>
+    <div :class="{adminApp: isAdmin}" class="wrapper">
+        <Header :isAdmin="isAdmin"/>
         <router-view/>
     </div>
 </template>
 
 <script>
-    import Header from "./components/Header.vue"
+    import Header from "./components/Header/Header.vue"
     import {onMounted, computed, watch, watchEffect, ref} from 'vue'
     import {useStore} from 'vuex'
 
@@ -15,6 +15,7 @@
         components: {Header},
         setup() {
             const store = useStore()
+            const isAdmin = computed(() => store.state.isAdmin)
 
             const cartItems = computed(() => store.state.cartItems)
             const pizzas = computed(() => JSON.stringify(Object.fromEntries(cartItems.value)))
@@ -37,6 +38,7 @@
                     }
                 }
             })
+            return {isAdmin}
         }
     }
 </script>

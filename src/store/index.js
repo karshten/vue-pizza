@@ -1,5 +1,6 @@
-import {createStore} from 'vuex'
-import {getCollection} from "../composables/getCollection";
+import { createStore } from 'vuex'
+import { getCollection } from "../composables/getCollection";
+import { useDocument } from '../composables/useDocument';
 
 export default createStore({ //store
     state: {
@@ -11,7 +12,8 @@ export default createStore({ //store
             sortBy: 'rating'
         },
         cartItems: new Map([]), // something like {},
-        createdPreviewPizza: null
+        createdPreviewPizza: null,
+        isAdmin: true
     },
     getters: { // something like computed
         getTotalCount(state) {
@@ -33,7 +35,7 @@ export default createStore({ //store
             state.pizzas = actionPizza.value
         },
         GET_PIZZAS_CART(state, actionPizza) {
-            actionPizza.value.forEach(cart => state.cartItems.set(cart.id, {...cart}))
+            actionPizza.value.forEach(cart => state.cartItems.set(cart.id, { ...cart }))
         },
         SET_CATEGORY(state, categoryIndex) {
             state.category = categoryIndex
@@ -52,16 +54,16 @@ export default createStore({ //store
             const isAlreadyExists = state.cartItems.get(id)
 
             if (isAlreadyExists) {
-                state.cartItems.set(id, {...pizza, count: isAlreadyExists.count + 1})
+                state.cartItems.set(id, { ...pizza, count: isAlreadyExists.count + 1 })
             } else {
-                state.cartItems.set(id, {...pizza, count: 1})
+                state.cartItems.set(id, { ...pizza, count: 1 })
             }
         },
         REMOVE_PIZZA_FROM_CART(state, pizza) {
             const id = `${pizza.name}${pizza.type}${pizza.size}`
             if (pizza.count < 1) {
                 state.cartItems.delete(id)
-            } else state.cartItems.set(id, {...pizza, count: pizza.count - 1})
+            } else state.cartItems.set(id, { ...pizza, count: pizza.count - 1 })
         },
         INCREMENT_PIZZA_COUNT(state, pizza) {
             const id = `${pizza.name}${pizza.type}${pizza.size}`
@@ -69,7 +71,7 @@ export default createStore({ //store
 
             delete pizza.count
 
-            state.cartItems.set(id, {...pizza, count: count + 1})
+            state.cartItems.set(id, { ...pizza, count: count + 1 })
         },
         DECREMENT_PIZZA_COUNT(state, pizza) {
             const id = `${pizza.name}${pizza.type}${pizza.size}`
@@ -81,7 +83,7 @@ export default createStore({ //store
 
             delete pizza.count
 
-            state.cartItems.set(id, {...pizza, count: count - 1})
+            state.cartItems.set(id, { ...pizza, count: count - 1 })
         },
         CLEAR_CART_ITEMS(state) {
             state.cartItems.clear()
@@ -94,16 +96,19 @@ export default createStore({ //store
         CREATE_PIZZA(state, pizza) {
             state.createdPreviewPizza = pizza
         },
-        SET_SAVED_PIZZAS(state, savedPizzas){
+        SET_SAVED_PIZZAS(state, savedPizzas) {
             state.cartItems = savedPizzas
+        },
+        SET_VALUE_TO_CRETING_PIZZA(state, keyValue){
+            state.createdPreviewPizza[keyValue[0]] = keyValue[1]
         }
     },
     actions: {
         //actions for async code like requests. you CAN NOT change/mutate state in actions
         // first action argument always takes the context
         //context is this file
-        async getPizzaAction({commit, state}) {
-            const {documents} = await getCollection('pizzas')
+        async getPizzaAction({ commit, state }) {
+            const { documents } = await getCollection('pizzas')
             commit('GET_PIZZAS', documents)
         },
         async getFilteredPizzasAction(context, category) {
@@ -113,6 +118,10 @@ export default createStore({ //store
             // context.commit('GET_PIZZAS', pizzasData)
             context.commit('SET_SORT', context.state.sortByActive)
         },
+        async addPizzaByAdmin(context, object){
+            const {addDocument} = useDocument('pizzas')
+            await addDocument(object)
+        }
     },
     modules: {}
 })
